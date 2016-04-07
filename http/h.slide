@@ -1,0 +1,158 @@
+Sth about HTTP Proxy/Tunnel
+Apr. 04, 2016
+
+zeus · robi
+
+* Agenda?
+
+- HTTP itself
+- HTTP Proxy/Tunnel
+- What HTTP2 helped
+
+* HTTP
+
+We use it everyday and every APIs in our system.
+
+.image /pic/req_resp.jpg 500 600
+
+from HTTP: The Definitive Guide
+
+* HTTP
+
+request message:
+
+  <method> <request-URL> <version>
+  <headers>
+  <entity-body>
+
+response message:
+
+  <version> <status> <reason-phrase>
+  <headers>
+  <entity-body>
+
+* HTTP
+
+See a Demo
+
+* Connection
+
+.image /pic/connection.jpg 550 620
+
+from HTTP: The Definitive Guide
+
+* Connection Problem
+
+- Connection number is limited for per host
+- One thing at a time for a conn
+- TCP setup, slow start
+- TLS handshakes too: ClientHello, ServerHello
+- FE do many things: multiple hosts, inline, images, compress..
+
+* HTTPs Connection
+
+.image /pic/https.jpg 520 930
+
+* Proxy
+
+- Forward Proxy
+- Reverse Proxy
+- Transparent Proxy
+
+.image /pic/proxy1.jpg 300 850
+
+from HTTP: The Definitive Guide
+
+* Client Proxy
+
+- Manual
+- PAC file
+- WPAD
+
+  function FindProxyForURL(url, host) {
+      if (url.substring(0,5) == "http:") {
+          return "PROXY http-proxy.mydomain.com:8080";
+      } else if (url.substring(0,4) =="ftp:") {
+          return "PROXY ftp-proxy.mydomain.com:8080";
+      } else {
+          return "DIRECT";
+      }
+  }
+
+* Simple Go Proxy
+
+.code code/httpproxy.go
+
+* Not work for HTTPS
+
+It's not work for HTTPS!!!!
+
+and we can not see decrypted content.. or using Fiddler or Wireshark ways..
+
+* Tunnel
+
+.image pic/tunnel.jpg 520 750
+
+from HTTP: The Definitive Guide
+
+* Tunnel
+
+.image pic/tunnel2.png 500 750
+
+* Tunnel
+
+.code code/tunnel.go
+
+* SPDY
+
+\....
+
+* HTTP2
+
+- binary protocol
+- many things at a time -- Multiplexed streams
+- compression header
+- still pretty clean and consistent
+- GET, POST, cookies, etc (1:1 semantics)
+- tcp:443 (encrypted only in practice)
+
+* HTTP2
+
+.image /pic/http2.1.png 200 500
+
+.image /pic/http2.2.png 150 450
+
+* Other
+
+- Many kinds of Frame: SETTINGS, PING, HEADERS, DATA, GOAWAY, RST_STREAM, WINDOW_UPDATE, PUSH_PROMISE, PRIORITY
+- HPACK: huffman encoding, both maintain and diff update
+- Server Push
+
+Demo:
+.link https://http2.golang.org/gophertiles
+
+* HTTP2 for GO
+
+  golang.org/x/net/http2
+
+In Go 1.5
+
+  http2.ConfigureServer(&srv, &http2.Server{})
+
+  http2.ConfigureTransport(t)
+
+In Go 1.6 Default Opened
+
+just use http.Server and http.Transport as normal way..
+
+ps: golang.org/x/tools/cmd/bundle
+
+* Roadmap
+
+  +------------+      +------------+    +------------+
+  |            |      |            |    |            |
+  |   Chrome   +--h2--+ http2proxy +----+  Internet  |
+  |            |      |            |    |            |
+  +------------+      +------------+    +------------+
+
+Now only Squid + nghttp2

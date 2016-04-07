@@ -156,3 +156,8 @@ ps: golang.org/x/tools/cmd/bundle
   +------------+      +------------+    +------------+
 
 Now only Squid + nghttp2
+
+Others:
+
+- grpc.io, Armeria
+- oversea / cross room request?
